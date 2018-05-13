@@ -1,0 +1,371 @@
+# learned how to make data into a tree form.
+
+
+void printTree(tree t);        // print the tree on console graphically
+							   
+// initializes the pointer to the tree root
+// When the first key (node) is inserted, then it becomes the root actually.
+tree newTree() {
+	return NULL;
+}
+
+// instantiates a new node with a key and 
+// returns the pointer of the new node which becomes a tree root. 
+// Its left child and right child are set to NULL. 
+tree newNode(Key key) {
+	tree node = (tree)malloc(sizeof(tree_struct));
+	assert(node != NULL);
+
+	node->key = key;
+	node->left = NULL;
+	node->right = NULL;
+	return node;
+}
+
+// frees one node, not the tree
+tree freeNode(tree node) {
+	if (node != NULL) {
+		DPRINT(printf(" freeNode(%d)\n", node->key));
+		free(node);
+	}
+	return NULL;
+}
+
+// frees all nodes while traversing the tree like postorder
+// recursively. Use freeNode() instead of free() for debugging.
+tree freeTree(tree t) {
+
+	if (t == NULL)
+		return 0;
+	freeTree(t->left);
+	freeTree(t->right);
+
+	return freeNode(t);
+}
+
+// Inserts a new node with the key in given binary tree and 
+// returns the new node such that client use it properly.
+
+tree insert(tree node, Key key) {
+	if (node == NULL) return newNode(key);
+
+	if (key < node->key)	// recur down the tree
+		node->left = insert(node->left, key);
+	else if (key > node->key)
+		node->right = insert(node->right, key);
+
+	// do nothing, the duplicate key is not allowed
+	return node;
+}
+
+// inserts a node at the node specified, used to test isBST()
+tree insertAt(tree root, Key key, Key keyAtNode, bool atLeft) {
+	if (root == NULL) return newNode(key);
+
+	tree node = getNode(root, keyAtNode);
+	if (node == NULL) return root;  // not found, return root
+
+	if (node->left)
+		node->right = newNode(key);
+	else if (node->right)
+		node->left = newNode(key);
+	else if (node->left == NULL && node->right == NULL) {
+		if (atLeft)
+			node->left = newNode(key);
+		else
+			node->right = newNode(key);
+	}
+	else {
+		// assert(node->left && node->right);  // has two children
+	}
+
+	return root;
+}
+
+///////////////////////////////////////////////////////////////////
+// Delete
+///////////////////////////////////////////////////////////////////
+tree successor(tree node) {
+	if (node == NULL)
+		return NULL;
+	tree next = node->right;
+	tree now = next;
+	if (next != NULL) {
+		while (next != NULL) {
+			now= next;
+			next = next->left;
+		}
+	}
+	return now;
+}
+
+Key successorKey(tree root) {
+	tree node = successor(root);
+	if (node != NULL) return node->key;
+	return (Key)NULL;
+}
+
+tree predecessor(tree node) {
+	if (node == NULL)
+		return NULL;
+	tree next = node->left;
+	tree now = next;
+	if (next != NULL) {
+		while (next != NULL) {
+			now = next;
+			next = next->right;
+		}
+	}
+	return now;
+}
+
+Key predecessorKey(tree root) {
+	tree node = predecessor(root);
+	if (node != NULL) return node->key;
+	return (Key)NULL;
+}
+
+// deletes the node with the key in a tree and returns the new root
+tree delete(tree root, Key key) {
+	if (root == NULL) return root;	 // base case
+	DPRINT(printf(">delete: now we are at %d\n", root->key));
+
+	// then node to delete must be in left subtree.
+	if (key < root->key)
+		root->left = delete(root->left, key);
+
+	// then node to delete must be in right subtree.
+	else if (key > root->key)
+		root->right = delete(root->right, key);
+
+	// node with two childeren: replace it with the successor or predecessor
+	else if (root->left && root->right) {
+		DPRINT(printf("Two Child Case(%d)\n", root->key));
+
+		int leftHeight = maxHeightTree(root->left);
+		int rightHeight = maxHeightTree(root->right);
+
+		tree Node = leftHeight < rightHeight ? successor(root) : predecessor(root);
+
+		int key = Node->key;
+		delete(root, key);
+		root->key = key;
+	}
+	else if (root->left) { // One Child Left Case
+		DPRINT(printf(" One Child Case(%d)\n", root->key));
+		tree now = root;
+		tree next = root->left;
+		root = next;
+		now = freeNode(now);
+	}
+	else if (root->right) { // One Child Right Case
+		DPRINT(printf(" One Child Case(%d)\n", root->key));
+		tree now = root;
+		tree next = root->right;
+		root = next;
+		now = freeNode(now);
+	}
+	else { // node with no child 
+		DPRINT(printf(" No Child Case(%d)\n", root->key));
+		root = freeNode(root);
+	}
+
+	DPRINT(if (root!=NULL) printf("<delete returns(key=%d)\n", root->key));
+	DPRINT(if (root==NULL) printf("<delete returns(NULL)\n"));
+
+	return root;
+}
+
+// Computes the size of the binary tree dyamically by
+// traversing the nodes recursively.
+int sizeTree(tree node) {
+	if (node == NULL) return 0;
+	return 1 + sizeTree(node->left) + sizeTree(node->right);
+}
+
+bool isEmptyTree(tree t) {
+	return t == NULL;
+}
+
+// Compute the max depth of a tree. It is the number of edges along
+// the longest path from the root node down to the farthest leaf node.
+// height 0 (undefined) for empty tree, 1 for root only tree;
+int maxHeightTree(tree node) {
+	if (isEmptyTree(node)) return 0;
+	// compute the depth of each subree and return the larger one.
+	
+	int left = maxHeightTree(node->left);
+	int right = maxHeightTree(node->right);
+
+	return (left>right)? left+1 : right+1;
+}
+
+// This prints out nodes in inorder traveral of a binary tree.
+// Given a binary search tree, print out its key in increasing sorted order
+void inorder(tree node) {
+	if (node == NULL) return;
+	
+	inorder(node->left);
+	printf("%d\n", node->key);
+	inorder(node->right);
+}
+
+// Given a binary tree, print out its nodes in postorder traversal.
+void postorder(tree node) {
+	if (node == NULL) return;
+	// first of all recur on both subtrees
+	
+	postorder(node->left);
+	postorder(node->right);
+	printf("%d\n", node->key);
+}
+
+// Given a binary tree, print out its nodes in preorder traversal.
+void preorder(tree node) {
+	if (node == NULL) return;
+	
+	printf("%d\n", node->key);
+	preorder(node->left);
+	preorder(node->right);
+}
+
+// Given a binary tree, print out its nodes in level-order traversal
+// using a queue.
+void levelOrder(tree node) {
+	if (node == NULL) return;
+
+	queue_struct *q = newTreeQueue(sizeTree(node));
+	enqueue(q, node);
+	while (1) {
+		node = dequeue(q);
+		if (node == NULL) break;
+		printf("%d ", node->key); 
+		if (node->left) 	enqueue(q, node->left);
+		if (node->right)	enqueue(q, node->right);
+	}
+	freeQueue(q);
+}
+
+// Given a binary search tree, return the min or max key in the tree.
+// Don't need to traverse the entire tree.
+Key minIteration(tree node) {
+	while (node->left != NULL) {	// find the left most leaf
+		node = node->left;
+	}
+	return node->key;
+}
+
+tree minNode(tree node) {			// returns min node
+	if (node->left == NULL) return node;
+	return minNode(node->left);
+}
+Key minKey(tree node) {
+	tree min_Node = minNode(node);
+	int min_key = min_Node->key;
+	return min_key;
+}
+tree maxNode(tree node) {			// returns max node
+	if (node->right == NULL)
+		return node;
+	return maxNode(node->right);
+}
+Key maxKey(tree node) {
+	tree max_Node = maxNode(node);
+	int max_key = max_Node->key;
+	return max_key;
+}
+
+// does there exist a key-value pair with given key?
+// search a key in binary search tree recursively.
+bool contains(tree t, Key key) {
+	if (isEmptyTree(t))   return false;
+	return contains2(t, key);
+}
+
+bool contains2(tree node, Key key) {
+	if (isEmptyTree(node)) return false;
+
+	if (containsIteration(node, key))
+		return true;
+
+	return false;
+}
+
+// returns a node with a key given if found, otherwise NULL.
+tree getNode(tree node, Key key) {
+	if (isEmptyTree(node)) return NULL;
+
+	if (key == node->key) return node;
+	if (key < node->key)
+		return getNode(node->left, key);
+	return getNode(node->right, key);
+}
+
+// does there exist a key-value pair with given key?
+// search a key in binary search tree iteratively
+bool containsIteration(tree node, Key key) {
+	if (node == NULL) return false;
+	while (node) {
+		if (key == node->key) return true;
+		if (key < node->key)
+			node = node->left;
+		else
+			node = node->right;
+	}
+	return false;
+}
+
+bool isLeaf(tree node) {
+	if (isEmptyTree(node)) return true;
+	return node->left == NULL && node->right == NULL;
+}
+
+// does this binary tree satisfy symmetric order?
+// Note: this test also ensures that data structure is a binary tree 
+// since order is strict
+bool isBST(tree root) {
+	if (isEmptyTree(root)) return true;
+
+	Key min = minKey(root);
+	Key max = maxKey(root);
+	return isBST2(root, min, max);
+}
+
+// is the tree rooted at x a BST with all keys between min and max?
+bool isBST2(tree x, Key min, Key max) {
+	
+	if (x == NULL)
+		return true;
+
+	printf(" key = %d, min = %d, max = %d \n", x->key, min, max);
+
+	isBST2(x->left, min, x->key);
+	isBST2(x->right, x->key, max);
+
+	if (x->key >= min && x->key <= max) {
+		printf(" key = %d, min %d, max =%d TRUE \n", x->key, min, max);
+		return true;
+	}
+
+	return false;
+}
+
+// While doing Inorder traversal, we can keep track of previously visited node.
+// If the value of the currently visited node is less than the previous value, 
+// then tree is not BST.
+bool isBSTinOrder2(tree root, tree *prev) {
+	// traverse the tree in inorder fashion and keep track of prev node
+	if (root == NULL) return true;
+
+	if (!isBSTinOrder2(root->left, prev)) return false;
+
+	// Allows only distinct valued nodes 
+	if (*prev != NULL && root->key <= (*prev)->key) return false;
+	*prev = root;
+	return isBSTinOrder2(root->right, prev);
+}
+
+bool isBSTinOrder(tree root) {
+	tree prev = NULL;
+	return isBSTinOrder2(root, &prev);
+}
