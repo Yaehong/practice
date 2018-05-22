@@ -1,0 +1,33 @@
+# learned how to use recurion using java
+
+import java.util.Scanner;
+public class P14_Fibonacci_main {
+	public static void main(String[] args) {
+		Scanner kb = new Scanner(System.in);
+		while(true) {
+		System.out.println("Input n (-1 for exit) : ");
+		int number = kb.nextInt();
+		if(number == (-1))
+			break;
+		System.out.println("Fibonacci(" + number + ") is " + fibonacci(number));
+		}
+		System.out.println("Goodbye~!!");
+		kb.close();
+	}
+	
+	public static int fibonacci(int num) {
+		int result =0;
+		if(num==0) {
+			result = 0;
+			return result;
+		}
+		else if(num ==1) {
+			result = 1;
+			return result;
+		}
+		else {
+			result = fibonacci(num-1) + fibonacci(num-2);
+			return result;
+		}
+	}
+}
