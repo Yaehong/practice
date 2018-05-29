@@ -1,0 +1,39 @@
+# DS binsearch code that I made
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#ifdef DEBUG
+#define DPRINT(func) func;
+#else
+#define DPRINT(func) ;
+#endif
+
+int binary_search(int *list, int toFind, int start, int end) {
+	DPRINT(printf(">binary_search: start=%d, end=%d\n", start, end));
+
+	int mid = start + (end - start) / 2;	//Integer division
+
+	if (start > end) return -1;				//Stop condition.
+
+	if (list[mid] == toFind)				//Found?
+		return mid;
+
+	if(list[mid]> toFind)
+		return binary_search(list,toFind,start,mid-1);
+
+	else
+		return binary_search(list,toFind,mid+1,end);
+}
+
+// a helper function
+int binsearch(int *list, int toFind, int datasize) {
+	DPRINT(printf(">binsearch: toFind=%d, datasize=%d\n", toFind, datasize));
+	int a, b;
+	a = 0;
+	b = datasize;
+
+	return binary_search(list, toFind, a, b);
+}
