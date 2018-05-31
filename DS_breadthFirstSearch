@@ -1,0 +1,17 @@
+# an example code of using breadthFirstSearch using C 
+
+
+void breadthFirstSearch(graph g, int v) {
+   	int N = g->N; 
+   	short *marked = (short *)malloc(N * sizeof(short)); 
+	int   *parent = (int   *)malloc(N * sizeof(int));
+	
+	for (int i = 0; i < N; i++)  {
+		marked[i] = false; parent[i] = -1; 
+	}
+	
+	bfs(g, v, marked, parent);
+
+	free(marked);
+	free(parent);
+}
