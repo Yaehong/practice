@@ -1,0 +1,43 @@
+# making my own Exception class
+
+
+import java.util.Scanner;
+public class P12_MyException_main {
+	public static void main(String[] args) {
+		while(true) {
+		Scanner kb = new Scanner(System.in);
+		try {
+			String str = kb.nextLine();
+			StringTest(str);
+		}
+		catch(P12_MyException mae) {
+			System.out.println(mae);
+		}
+		kb.close();
+		}
+	}
+	
+	static void StringTest(String str) throws P12_MyException{
+		String [] filter_word = {"@","#","$","%","^","&","*","|","{","}","[","]","-","/","+"};
+		for(int w=0; w<filter_word.length; w++) {
+		if(str.indexOf(filter_word[w])>=0) 
+			throw new P12_MyException(filter_word[w]);
+		}
+		System.out.println("String : " + str);
+	}
+}
+
+public class P12_MyException extends Exception{
+	private String temp;
+	
+	public P12_MyException() {
+		super("Exception occured!");
+	}
+	public P12_MyException(String message) {
+		super(message);
+		temp = message;
+	}
+	public String toString() {
+		return String.format("String should not include special character %s.", temp);
+	}
+}
