@@ -1,0 +1,27 @@
+# learned how to  make java exe files 
+
+
+public class P16_SumNumbers_main {
+	public static void main(String[] args) {
+		if(args.length == 1) {
+			long N = Long.parseLong(args[0]);
+			long S = P16_SumNumbers.Sum1toN(N);
+			
+			System.out.println(S);
+		}
+		else {
+			System.out.println("Need an integer number.");
+		}
+	}
+}
+
+
+public class P16_SumNumbers {
+	public static long Sum1toN(long N) {
+		long S = 0;
+		for(int i=1; i<=N; i++)
+			S +=i;
+		
+		return S;
+	}
+}
