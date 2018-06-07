@@ -1,4 +1,4 @@
-#learned DFS in Data Structure
+# made DFS using c
 
 // Recursive DFS does the work
 void DFSrecurse(graph g, int v) {
