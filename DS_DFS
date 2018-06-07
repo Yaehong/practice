@@ -1,0 +1,39 @@
+#learned DFS in Data Structure
+
+// Recursive DFS does the work
+void DFSrecurse(graph g, int v) {
+	g->marked[v] = true;
+	printf("%d ", v);		// visiting node
+
+	enqueue(g->queue, v);
+
+	gnode p;
+	for (p = g->adj[v].next; p; p = p->next) {
+		int next = p->item;
+		if (!g->marked[next]) {
+			DFSrecurse(g, next);
+			g->parent[next] = v;
+		}
+	}
+
+
+}
+
+// runs depth first search, produces parent[] and 
+// has side effects that prints a list of nodes visited 
+void DFS(graph g, int v){
+	if (isEmpty(g)) return;
+
+	g->queue = newQueue();
+
+	for (int i = 0; i < V(g); i++) {
+		g->marked[i] = false; 
+		g->parent[i] = -1;
+	}
+	
+	printf("\tDepth First Search: ");
+	DFSrecurse(g, v);		
+	printf("\n");
+	getDFSedFromQueue(g);
+	printf("\n");
+}
