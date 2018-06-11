@@ -1,0 +1,54 @@
+pStack cycle(graph g) {
+	g->cycle = NULL;
+	if (hasSelfLoop(g) || hasParallelEdges(g)) return g->cycle;
+
+	for (int i = 0; i < V(g); i++) {
+		g->marked[i] = false;
+		g->parent[i] = -1;
+	}
+
+	for (int v = 0; v < V(g); v++) {
+		if (!g->marked[v]) {
+			cycleDFS(g, -1, v);
+			if (g->cycle) return g->cycle;
+		}
+	}
+	return g->cycle;
+}
+
+// Recursive DFS does the work
+// @param  g: the gragph, u: vertex visited previously, v: visitng vertex
+void cycleDFS(graph g, int u, int v) {
+	g->marked[v] = true;
+	if (g->cycle) return;
+	DPRINT(printf(">cycleDFS(v=%d) marked\n", v);)      // visit vertex v
+
+	gnode p;
+	for (p = g->adj[v].next; p; p = p->next) {
+		if (g->marked[p->item] == true && p->item != u) {
+			g->cycle = newStack();
+			int a = v;
+			push(g->cycle, v);
+			while (v != p->item) {
+				if (g->parent[v] == p->item) {
+					push(g->cycle, g->parent[v]);
+					break;
+				}
+				else {
+					push(g->cycle, g->parent[v]);
+					v = g->parent[v];
+				}
+			}
+			push(g->cycle, a);
+			break;
+		}
+		else {
+			if (g->marked[p->item] == false) {
+				g->parent[p->item] = v;
+				cycleDFS(g, v, p->item);
+				if (g->cycle) return;
+			}
+		}
+	}
+	DPRINT(printf("<cycleDFS(v=%d) done\n", v);)
+}
