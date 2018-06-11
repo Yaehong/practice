@@ -1,0 +1,47 @@
+# coded BFS
+
+void BFS(graph g, int v) {
+	if (isEmpty(g)) return;
+	pQueue q = newQueue();
+	int N = V(g);
+	int E = g->E;
+
+	for (int i = 0; i < N; i++) {
+		g->parentBFS[i] = -1;
+		g->distTo[i] = -1;			
+		g->marked[i] = false;
+	}
+
+	printf("\tBreadth First Search: "); 
+	g->distTo[v] = 0;
+	g->marked[v] = true;
+	printf("%d ", v);
+	enqueue(q, v);
+
+	while (q->front != NULL) {
+		v = dequeue(q);
+		gnode p;
+		for (p = g->adj[v].next; p; p = p->next) {
+			int next = p->item;
+			if (!g->marked[next]) {
+				printf("%d ", next);
+				enqueue(q, next);
+				g->parentBFS[next] = v;
+				g->distTo[next] = g->distTo[v] +1;
+				g->marked[next] = true;
+			}
+		}
+	}
+
+	/* 
+	while (q->front != NULL) {
+		v = dequeue(q);
+		// go through all nodes
+
+	}
+	*/
+
+	printf("\n");
+	freeQueue(q);
+}
+
