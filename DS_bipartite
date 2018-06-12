@@ -1,0 +1,52 @@
+pStack bipartite(graph g) {
+	if (isEmpty(g)) return NULL;
+
+	g->cycle = NULL;
+	for (int i = 0; i < V(g); i++) {
+		g->marked[i] = false;
+		g->color[i] = BLACK;	// BLACK=0, WHITE=1
+		g->parent[i] = -1;
+	}
+
+	for (int v = 0; v < V(g); v++) {
+		if (!g->marked[v]) {
+			bipartiteDFS(g, v);
+			if (g->cycle != NULL) {
+				return g->cycle;  // found 1st cycle
+			}
+		}
+	}
+	return g->cycle;
+}
+
+// verify that adj[v]'s color should be different from its adj[v]'s list vertices
+// if it is bipartite. 
+int bipartiteVerify(graph g) {
+	if (isEmpty(g)) return true;
+
+	for(int v=0; v<V(g); v++){
+		for (gnode w = g->adj[v].next; w; w = w->next) {
+			if (g->color[w->item] == g->color[v])
+				return false;
+		}
+	}
+
+	return true;
+}
+
+// print bipartite vertices by its color, say, MALE vs. FEMALE
+void bipartitePrint(graph g) {
+	if (isEmpty(g)) return;
+
+	int firstColor = g->color[0];
+
+	printf("\tBipartite(BLACK): ");
+	for (int v = 0; v < V(g); v++)
+		if (g->color[v] == firstColor) printf("%d ", v);
+	printf("\n");
+
+	printf("\tBipartite(WHITE): ");
+	for (int v = 0; v < V(g); v++)
+		if (g->color[v] != firstColor) printf("%d ", v);
+	printf("\n");
+}
